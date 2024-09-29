@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crossy Road - Rabbit vs Lions (Anime Style)</title>
+    <title>Crossy Road - Rabbit vs Lions (Anime Style with Touch Support)</title>
     <style>
         body {
             margin: 0;
@@ -28,10 +28,10 @@
 
     // Load images for rabbit and lion
     const rabbitImg = new Image();
-    rabbitImg.src = "Anime-style_baby_rabbit_character,_standing_cutely.png";  // Baby rabbit image
+    rabbitImg.src = "/mnt/data/Anime-style_baby_rabbit_character,_standing_cutely.png";  // Baby rabbit image
     
     const lionImg = new Image();
-    lionImg.src = "Anime-style_evil_lion_character,_standing_menacing.png";  // Evil lion image
+    lionImg.src = "/mnt/data/Anime-style_evil_lion_character,_standing_menacing.png";  // Evil lion image
 
     let rabbit = {
         x: 50,
@@ -51,6 +51,8 @@
     ];
 
     let keys = {};
+    let touchStartX = 0;
+    let touchStartY = 0;
 
     // Rabbit movement
     function moveRabbit() {
@@ -91,6 +93,45 @@
         });
     }
 
+    // Handle touch input for mobile
+    function handleTouchStart(evt) {
+        const touch = evt.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+    }
+
+    function handleTouchMove(evt) {
+        if (!touchStartX || !touchStartY) return;
+
+        const touch = evt.touches[0];
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // Horizontal swipe
+            if (deltaX > 0 && rabbit.x < canvas.width - rabbit.width) {
+                rabbit.x += rabbit.speed;
+            } else if (deltaX < 0 && rabbit.x > 0) {
+                rabbit.x -= rabbit.speed;
+            }
+        } else {
+            // Vertical swipe
+            if (deltaY > 0 && rabbit.y < canvas.height - rabbit.height) {
+                rabbit.y += rabbit.speed;
+            } else if (deltaY < 0 && rabbit.y > 0) {
+                rabbit.y -= rabbit.speed;
+            }
+        }
+
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+    }
+
+    function handleTouchEnd() {
+        touchStartX = 0;
+        touchStartY = 0;
+    }
+
     // Animation frame
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas for new frame
@@ -112,7 +153,7 @@
         requestAnimationFrame(gameLoop);
     }
 
-    // Keydown and keyup listeners
+    // Keydown and keyup listeners for keyboard controls
     window.addEventListener("keydown", (e) => {
         keys[e.key] = true;
         if (e.key === "Shift") rabbit.isSprinting = true; // Enable sprint when Shift is pressed
@@ -122,6 +163,11 @@
         keys[e.key] = false;
         if (e.key === "Shift") rabbit.isSprinting = false; // Disable sprint when Shift is released
     });
+
+    // Touch event listeners for mobile controls
+    canvas.addEventListener("touchstart", handleTouchStart);
+    canvas.addEventListener("touchmove", handleTouchMove);
+    canvas.addEventListener("touchend", handleTouchEnd);
 
     gameLoop();
 </script>
