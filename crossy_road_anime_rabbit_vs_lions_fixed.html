@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossy Road - Rabbit vs Lions (Anime Style)</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            background-color: #87CEEB; /* Sky blue background for city environment */
+        }
+    </style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Load images for rabbit and lion
+    const rabbitImg = new Image();
+    rabbitImg.src = "/mnt/data/Anime-style_baby_rabbit_character,_standing_cutely.png";  // Baby rabbit image
+    
+    const lionImg = new Image();
+    lionImg.src = "/mnt/data/Anime-style_evil_lion_character,_standing_menacing.png";  // Evil lion image
+
+    let rabbit = {
+        x: 50,
+        y: canvas.height - 100,
+        width: 50,
+        height: 50,
+        speed: 5,
+        sprintSpeed: 12,
+        isSprinting: false,
+        sprintDuration: 0
+    };
+
+    let lions = [
+        { x: 100, y: 0, width: 50, height: 50, speed: 3 },
+        { x: 300, y: 0, width: 50, height: 50, speed: 4 },
+        { x: 500, y: 0, width: 50, height: 50, speed: 2 }
+    ];
+
+    let keys = {};
+
+    // Rabbit movement
+    function moveRabbit() {
+        if (keys["ArrowUp"] && rabbit.y > 0) rabbit.y -= rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
+        if (keys["ArrowDown"] && rabbit.y < canvas.height - rabbit.height) rabbit.y += rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
+        if (keys["ArrowLeft"] && rabbit.x > 0) rabbit.x -= rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
+        if (keys["ArrowRight"] && rabbit.x < canvas.width - rabbit.width) rabbit.x += rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
+    }
+
+    // Lions movement
+    function moveLions() {
+        lions.forEach(lion => {
+            lion.y += lion.speed;
+            if (lion.y > canvas.height) {
+                lion.y = 0; // Loop the lions when they go off screen
+                lion.x = Math.random() * canvas.width;
+            }
+        });
+    }
+
+    // Check collision
+    function checkCollision(rabbit, lion) {
+        return rabbit.x < lion.x + lion.width &&
+               rabbit.x + rabbit.width > lion.x &&
+               rabbit.y < lion.y + lion.height &&
+               rabbit.y + rabbit.height > lion.y;
+    }
+
+    // Draw rabbit
+    function drawRabbit() {
+        ctx.drawImage(rabbitImg, rabbit.x, rabbit.y, rabbit.width, rabbit.height);
+    }
+
+    // Draw lions
+    function drawLions() {
+        lions.forEach(lion => {
+            ctx.drawImage(lionImg, lion.x, lion.y, lion.width, lion.height);
+        });
+    }
+
+    // Animation frame
+    function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas for new frame
+
+        // Move and draw the rabbit and lions
+        moveRabbit();
+        moveLions();
+        drawRabbit();
+        drawLions();
+
+        // Check for collisions with each lion
+        lions.forEach(lion => {
+            if (checkCollision(rabbit, lion)) {
+                alert("A lion caught the rabbit! Game over.");
+                document.location.reload();
+            }
+        });
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    // Keydown and keyup listeners
+    window.addEventListener("keydown", (e) => {
+        keys[e.key] = true;
+        if (e.key === "Shift") rabbit.isSprinting = true; // Enable sprint when Shift is pressed
+    });
+
+    window.addEventListener("keyup", (e) => {
+        keys[e.key] = false;
+        if (e.key === "Shift") rabbit.isSprinting = false; // Disable sprint when Shift is released
+    });
+
+    gameLoop();
+</script>
+
+</body>
+</html>
