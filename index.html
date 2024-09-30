@@ -11,7 +11,6 @@
         }
         canvas {
             display: block;
-            background-color: #87CEEB; /* Initial Sky Blue */
         }
         #scoreboard {
             position: absolute;
@@ -39,27 +38,6 @@
         }
         #startButton:hover {
             background-color: #45a049;
-        }
-        /* Background animation */
-        @keyframes scrollBackground {
-            0% {
-                background-color: #87CEEB; /* Start Sky Blue */
-            }
-            25% {
-                background-color: #4DA1FF; /* Transition to deeper blue */
-            }
-            50% {
-                background-color: #001F3F; /* Evening dark blue */
-            }
-            75% {
-                background-color: #0C0032; /* Dark night */
-            }
-            100% {
-                background-color: #87CEEB; /* Loop back to morning sky */
-            }
-        }
-        body {
-            animation: scrollBackground 20s linear infinite;
         }
     </style>
 </head>
@@ -89,7 +67,6 @@
 
     let rabbit = { x: 50, y: canvas.height - 100, width: 50, height: 50, speed: 5, sprintSpeed: 12, isSprinting: false };
     
-    // Start with 3 lions
     let lions = [
         { x: 100, y: 0, width: 50, height: 50, speed: 3 },
         { x: 300, y: 0, width: 50, height: 50, speed: 4 },
@@ -102,6 +79,11 @@
     let backgroundSpeed = 20000;  // Initial background speed (in ms for animation loop)
 
     const backgroundMusic = document.getElementById("backgroundMusic");
+
+    // Background colors for animation stages
+    const backgroundColors = ["#87CEEB", "#4DA1FF", "#001F3F", "#0C0032"];
+    let currentBackgroundColorIndex = 0;
+    let backgroundAnimationTime = 0;
 
     function updateScore() {
         document.getElementById('score').textContent = score;
@@ -116,7 +98,6 @@
     function moveRabbit() {
         if (!gameRunning) return;
 
-        // Smooth movement towards the touch position
         if (touchX > rabbit.x) rabbit.x += rabbit.speed;
         if (touchX < rabbit.x) rabbit.x -= rabbit.speed;
         if (touchY > rabbit.y) rabbit.y += rabbit.speed;
@@ -134,11 +115,10 @@
                 if (score > highScore) highScore = score;
                 updateScore();
 
-                // Increase difficulty by adding lions (up to max 7)
                 if (lions.length < maxLions && score % 10 === 0) {
                     addLion();
                 }
-                // Speed up the background animation as difficulty increases
+
                 if (score % 10 === 0) {
                     speedUpBackground();
                 }
@@ -146,7 +126,6 @@
         });
     }
 
-    // Add a new lion to the game
     function addLion() {
         const newLion = {
             x: Math.random() * canvas.width,
@@ -158,12 +137,22 @@
         lions.push(newLion);
     }
 
-    // Speed up the background animation
     function speedUpBackground() {
         if (backgroundSpeed > 5000) {
-            backgroundSpeed -= 2000;  // Decrease time to speed up background
-            document.body.style.animationDuration = `${backgroundSpeed / 1000}s`;
+            backgroundSpeed -= 2000;
         }
+    }
+
+    function updateBackground() {
+        backgroundAnimationTime += gameSpeed;
+
+        if (backgroundAnimationTime > backgroundSpeed) {
+            currentBackgroundColorIndex = (currentBackgroundColorIndex + 1) % backgroundColors.length;
+            backgroundAnimationTime = 0;
+        }
+
+        ctx.fillStyle = backgroundColors[currentBackgroundColorIndex];
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     function checkCollision(rabbit, lion) {
@@ -204,8 +193,7 @@
             { x: 100, y: 0, width: 50, height: 50, speed: 3 },
             { x: 300, y: 0, width: 50, height: 50, speed: 4 },
             { x: 500, y: 0, width: 50, height: 50, speed: 2 }
-        ]; // Reset to 3 lions
-        document.body.style.animationDuration = "20s";  // Reset background speed
+        ];
         gameRunning = true;
         updateScore();
     }
@@ -219,21 +207,25 @@
     function handleTouchMove(evt) {
         const touch = evt.touches[0];
         touchX = touch.clientX - rabbit.width; 
-        touchY = touch.clientY - rabbit.height * 2; // Offset more above the touch point
+        touchY = touch.clientY - rabbit.height * 2; 
     }
 
     function handleTouchEnd() {
-        touchX = rabbit.x; // Stop movement when touch ends
+        touchX = rabbit.x;
         touchY = rabbit.y;
     }
 
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        updateBackground(); // Update background with animation
+
         if (gameRunning) {
             moveRabbit();
             moveLions();
             drawRabbit();
             drawLions();
+
             lions.forEach(lion => {
                 if (checkCollision(rabbit, lion)) {
                     endGame();
