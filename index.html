@@ -67,6 +67,8 @@
     lionImg.src = "Anime-style_evil_lion_character,_standing_menacing.png";
 
     let rabbit = { x: 50, y: canvas.height - 100, width: 50, height: 50, speed: 5, sprintSpeed: 12, isSprinting: false };
+    
+    // Start with 3 lions
     let lions = [
         { x: 100, y: 0, width: 50, height: 50, speed: 3 },
         { x: 300, y: 0, width: 50, height: 50, speed: 4 },
@@ -74,6 +76,7 @@
     ];
 
     let score = 0, highScore = 0, gameSpeed = 1, scoreMultiplier = 1, gameRunning = false;
+    let maxLions = 7;  // Maximum number of lions
     let touchX = rabbit.x, touchY = rabbit.y;
 
     const backgroundMusic = document.getElementById("backgroundMusic");
@@ -108,8 +111,25 @@
                 score += 1 * scoreMultiplier;
                 if (score > highScore) highScore = score;
                 updateScore();
+
+                // Increase difficulty by adding lions (up to max 7)
+                if (lions.length < maxLions && score % 10 === 0) {
+                    addLion();
+                }
             }
         });
+    }
+
+    // Add a new lion to the game
+    function addLion() {
+        const newLion = {
+            x: Math.random() * canvas.width,
+            y: 0,
+            width: 50,
+            height: 50,
+            speed: Math.random() * 3 + 2  // Random speed for new lion
+        };
+        lions.push(newLion);
     }
 
     function checkCollision(rabbit, lion) {
@@ -146,6 +166,11 @@
         scoreMultiplier = 1;
         rabbit.x = 50;
         rabbit.y = canvas.height - 100;
+        lions = [
+            { x: 100, y: 0, width: 50, height: 50, speed: 3 },
+            { x: 300, y: 0, width: 50, height: 50, speed: 4 },
+            { x: 500, y: 0, width: 50, height: 50, speed: 2 }
+        ]; // Reset to 3 lions
         gameRunning = true;
         updateScore();
     }
@@ -158,7 +183,6 @@
 
     function handleTouchMove(evt) {
         const touch = evt.touches[0];
-        // Apply offset to position the rabbit slightly above and to the left of the touch point
         touchX = touch.clientX - rabbit.width; 
         touchY = touch.clientY - rabbit.height * 2; // Offset more above the touch point
     }
