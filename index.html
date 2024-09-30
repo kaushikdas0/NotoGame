@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crossy Road - Rabbit vs Lions (Anime Style with Touch Support)</title>
+    <title>Crossy Road - Rabbit vs Lions (With Scoring)</title>
     <style>
         body {
             margin: 0;
@@ -14,10 +14,25 @@
             display: block;
             background-color: #87CEEB; /* Sky blue background for city environment */
         }
+        #scoreboard {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
+<div id="scoreboard">
+    Score: <span id="score">0</span> | High Score: <span id="highScore">0</span>
+    <br><button onclick="resetHighScore()">Reset High Score</button>
+</div>
 
 <script>
     const canvas = document.getElementById("gameCanvas");
@@ -26,7 +41,7 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Load images for rabbit and lion from the same folder as the HTML file
+    // Load images for rabbit and lion
     const rabbitImg = new Image();
     rabbitImg.src = "Anime-style_baby_rabbit_character,_standing_cutely.png";  // Baby rabbit image
     
@@ -54,6 +69,29 @@
     let touchStartX = 0;
     let touchStartY = 0;
 
+    // Scoring and difficulty progression
+    let score = 0;
+    let highScore = 0;
+    let gameSpeed = 1;
+    let scoreMultiplier = 1;
+    let gameSpeedIncreaseInterval = 5000;  // Increase game speed every 5 seconds
+    let lastSpeedIncrease = Date.now();
+
+    // Load sound effect
+    const scoreSound = new Audio('cyber_monster_world_sound.mp3'); // Replace with the actual path
+
+    // Display and update score
+    function updateScore() {
+        document.getElementById('score').textContent = score;
+        document.getElementById('highScore').textContent = highScore;
+    }
+
+    // Reset high score
+    function resetHighScore() {
+        highScore = 0;
+        updateScore();
+    }
+
     // Rabbit movement
     function moveRabbit() {
         if (keys["ArrowUp"] && rabbit.y > 0) rabbit.y -= rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
@@ -65,10 +103,17 @@
     // Lions movement
     function moveLions() {
         lions.forEach(lion => {
-            lion.y += lion.speed;
+            lion.y += lion.speed * gameSpeed;
             if (lion.y > canvas.height) {
                 lion.y = 0; // Loop the lions when they go off screen
                 lion.x = Math.random() * canvas.width;
+                // Increase score when the lion passes
+                score += 1 * scoreMultiplier;
+                scoreSound.play();
+                if (score > highScore) {
+                    highScore = score;
+                }
+                updateScore();
             }
         });
     }
@@ -136,6 +181,13 @@
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas for new frame
 
+        // Increase game speed and multiplier over time
+        if (Date.now() - lastSpeedIncrease > gameSpeedIncreaseInterval) {
+            gameSpeed += 0.1;
+            scoreMultiplier += 0.5;
+            lastSpeedIncrease = Date.now();
+        }
+
         // Move and draw the rabbit and lions
         moveRabbit();
         moveLions();
@@ -146,7 +198,11 @@
         lions.forEach(lion => {
             if (checkCollision(rabbit, lion)) {
                 alert("A lion caught the rabbit! Game over.");
-                document.location.reload();
+                if (score > highScore) highScore = score;
+                score = 0;
+                gameSpeed = 1;
+                scoreMultiplier = 1;
+                updateScore();
             }
         });
 
