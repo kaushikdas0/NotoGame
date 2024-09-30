@@ -11,7 +11,7 @@
         }
         canvas {
             display: block;
-            background-color: #87CEEB;
+            background-color: #87CEEB; /* Initial Sky Blue */
         }
         #scoreboard {
             position: absolute;
@@ -39,6 +39,27 @@
         }
         #startButton:hover {
             background-color: #45a049;
+        }
+        /* Background animation */
+        @keyframes scrollBackground {
+            0% {
+                background-color: #87CEEB; /* Start Sky Blue */
+            }
+            25% {
+                background-color: #4DA1FF; /* Transition to deeper blue */
+            }
+            50% {
+                background-color: #001F3F; /* Evening dark blue */
+            }
+            75% {
+                background-color: #0C0032; /* Dark night */
+            }
+            100% {
+                background-color: #87CEEB; /* Loop back to morning sky */
+            }
+        }
+        body {
+            animation: scrollBackground 20s linear infinite;
         }
     </style>
 </head>
@@ -78,6 +99,7 @@
     let score = 0, highScore = 0, gameSpeed = 1, scoreMultiplier = 1, gameRunning = false;
     let maxLions = 7;  // Maximum number of lions
     let touchX = rabbit.x, touchY = rabbit.y;
+    let backgroundSpeed = 20000;  // Initial background speed (in ms for animation loop)
 
     const backgroundMusic = document.getElementById("backgroundMusic");
 
@@ -116,6 +138,10 @@
                 if (lions.length < maxLions && score % 10 === 0) {
                     addLion();
                 }
+                // Speed up the background animation as difficulty increases
+                if (score % 10 === 0) {
+                    speedUpBackground();
+                }
             }
         });
     }
@@ -130,6 +156,14 @@
             speed: Math.random() * 3 + 2  // Random speed for new lion
         };
         lions.push(newLion);
+    }
+
+    // Speed up the background animation
+    function speedUpBackground() {
+        if (backgroundSpeed > 5000) {
+            backgroundSpeed -= 2000;  // Decrease time to speed up background
+            document.body.style.animationDuration = `${backgroundSpeed / 1000}s`;
+        }
     }
 
     function checkCollision(rabbit, lion) {
@@ -171,6 +205,7 @@
             { x: 300, y: 0, width: 50, height: 50, speed: 4 },
             { x: 500, y: 0, width: 50, height: 50, speed: 2 }
         ]; // Reset to 3 lions
+        document.body.style.animationDuration = "20s";  // Reset background speed
         gameRunning = true;
         updateScore();
     }
