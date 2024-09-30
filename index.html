@@ -66,7 +66,34 @@
     lionImg.src = "Anime-style_evil_lion_character,_standing_menacing.png";
 
     let rabbit = { x: 50, y: canvas.height - 100, width: 50, height: 50, speed: 5, sprintSpeed: 12, isSprinting: false };
-    
+
+    // Illustration background settings
+    let backgroundY = 0;  // Initial background Y position
+    let backgroundSpeed = 1;  // Speed of the background scrolling
+
+    // Illustration-style background: simple cityscape with buildings
+    function drawBackground() {
+        ctx.fillStyle = "#87CEEB"; // Sky blue
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw buildings (simple rectangles) that scroll
+        ctx.fillStyle = "#2F4F4F";  // Dark gray buildings
+        for (let i = 0; i < 5; i++) {
+            let buildingX = i * 200;  // Space between buildings
+            let buildingY = (backgroundY + i * 300) % canvas.height;  // Scroll effect
+            let buildingHeight = 200 + (i % 2) * 100;  // Different heights for buildings
+
+            ctx.fillRect(buildingX, buildingY, 100, buildingHeight);  // Draw building
+            ctx.fillRect(buildingX + 300, buildingY - 400, 100, buildingHeight + 150); // Second row of buildings
+        }
+
+        // Scroll the background
+        backgroundY += backgroundSpeed;
+        if (backgroundY > canvas.height) {
+            backgroundY = 0;  // Loop back to top
+        }
+    }
+
     let lions = [
         { x: 100, y: 0, width: 50, height: 50, speed: 3 },
         { x: 300, y: 0, width: 50, height: 50, speed: 4 },
@@ -76,14 +103,8 @@
     let score = 0, highScore = 0, gameSpeed = 1, scoreMultiplier = 1, gameRunning = false;
     let maxLions = 7;  // Maximum number of lions
     let touchX = rabbit.x, touchY = rabbit.y;
-    let backgroundSpeed = 20000;  // Initial background speed (in ms for animation loop)
 
     const backgroundMusic = document.getElementById("backgroundMusic");
-
-    // Background colors for animation stages
-    const backgroundColors = ["#87CEEB", "#4DA1FF", "#001F3F", "#0C0032"];
-    let currentBackgroundColorIndex = 0;
-    let backgroundAnimationTime = 0;
 
     function updateScore() {
         document.getElementById('score').textContent = score;
@@ -138,21 +159,9 @@
     }
 
     function speedUpBackground() {
-        if (backgroundSpeed > 5000) {
-            backgroundSpeed -= 2000;
+        if (backgroundSpeed < 5) {
+            backgroundSpeed += 0.5;
         }
-    }
-
-    function updateBackground() {
-        backgroundAnimationTime += gameSpeed;
-
-        if (backgroundAnimationTime > backgroundSpeed) {
-            currentBackgroundColorIndex = (currentBackgroundColorIndex + 1) % backgroundColors.length;
-            backgroundAnimationTime = 0;
-        }
-
-        ctx.fillStyle = backgroundColors[currentBackgroundColorIndex];
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     function checkCollision(rabbit, lion) {
@@ -218,7 +227,7 @@
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        updateBackground(); // Update background with animation
+        drawBackground();  // Draw scrolling background
 
         if (gameRunning) {
             moveRabbit();
