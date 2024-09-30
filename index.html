@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crossy Road - Rabbit vs Lions (Cyber Monster World Music)</title>
+    <title>Crossy Road - Rabbit vs Lions</title>
     <style>
         body {
             margin: 0;
@@ -12,7 +11,7 @@
         }
         canvas {
             display: block;
-            background-color: #87CEEB; /* Sky blue background for city environment */
+            background-color: #87CEEB;
         }
         #scoreboard {
             position: absolute;
@@ -25,6 +24,22 @@
             padding: 10px;
             border-radius: 5px;
         }
+        #startButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            font-size: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        #startButton:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -34,7 +49,9 @@
     <br><button onclick="resetHighScore()">Reset High Score</button>
 </div>
 
-<audio id="backgroundMusic" src="cyber_monster_world_sound.mp3" loop></audio>  <!-- Cyber Monster World Music as background -->
+<button id="startButton" onclick="startGame()">Start Game</button>
+
+<audio id="backgroundMusic" src="cyber_monster_world_sound.mp3" loop></audio>
 
 <script>
     const canvas = document.getElementById("gameCanvas");
@@ -43,60 +60,33 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Load images for rabbit and lion
     const rabbitImg = new Image();
-    rabbitImg.src = "Anime-style_baby_rabbit_character,_standing_cutely.png";  // Baby rabbit image
+    rabbitImg.src = "Anime-style_baby_rabbit_character,_standing_cutely.png";
     
     const lionImg = new Image();
-    lionImg.src = "Anime-style_evil_lion_character,_standing_menacing.png";  // Evil lion image
+    lionImg.src = "Anime-style_evil_lion_character,_standing_menacing.png";
 
-    let rabbit = {
-        x: 50,
-        y: canvas.height - 100,
-        width: 50,
-        height: 50,
-        speed: 5,
-        sprintSpeed: 12,
-        isSprinting: false,
-        sprintDuration: 0
-    };
-
+    let rabbit = { x: 50, y: canvas.height - 100, width: 50, height: 50, speed: 5, sprintSpeed: 12, isSprinting: false };
     let lions = [
         { x: 100, y: 0, width: 50, height: 50, speed: 3 },
         { x: 300, y: 0, width: 50, height: 50, speed: 4 },
         { x: 500, y: 0, width: 50, height: 50, speed: 2 }
     ];
 
-    let keys = {};
-    let touchStartX = 0;
-    let touchStartY = 0;
+    let keys = {}, score = 0, highScore = 0, gameSpeed = 1, scoreMultiplier = 1, gameRunning = false;
 
-    // Scoring and difficulty progression
-    let score = 0;
-    let highScore = 0;
-    let gameSpeed = 1;
-    let scoreMultiplier = 1;
-    let gameSpeedIncreaseInterval = 5000;  // Increase game speed every 5 seconds
-    let lastSpeedIncrease = Date.now();
-    let gameRunning = true;
-
-    // Play background music
     const backgroundMusic = document.getElementById("backgroundMusic");
-    backgroundMusic.play();
 
-    // Display and update score
     function updateScore() {
         document.getElementById('score').textContent = score;
         document.getElementById('highScore').textContent = highScore;
     }
 
-    // Reset high score
     function resetHighScore() {
         highScore = 0;
         updateScore();
     }
 
-    // Rabbit movement
     function moveRabbit() {
         if (!gameRunning) return;
         if (keys["ArrowUp"] && rabbit.y > 0) rabbit.y -= rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
@@ -105,25 +95,20 @@
         if (keys["ArrowRight"] && rabbit.x < canvas.width - rabbit.width) rabbit.x += rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
     }
 
-    // Lions movement
     function moveLions() {
         if (!gameRunning) return;
         lions.forEach(lion => {
             lion.y += lion.speed * gameSpeed;
             if (lion.y > canvas.height) {
-                lion.y = 0; // Loop the lions when they go off screen
+                lion.y = 0;
                 lion.x = Math.random() * canvas.width;
-                // Increase score when the lion passes
                 score += 1 * scoreMultiplier;
-                if (score > highScore) {
-                    highScore = score;
-                }
+                if (score > highScore) highScore = score;
                 updateScore();
             }
         });
     }
 
-    // Check collision
     function checkCollision(rabbit, lion) {
         return rabbit.x < lion.x + lion.width &&
                rabbit.x + rabbit.width > lion.x &&
@@ -131,64 +116,20 @@
                rabbit.y + rabbit.height > lion.y;
     }
 
-    // Draw rabbit
     function drawRabbit() {
         ctx.drawImage(rabbitImg, rabbit.x, rabbit.y, rabbit.width, rabbit.height);
     }
 
-    // Draw lions
     function drawLions() {
         lions.forEach(lion => {
             ctx.drawImage(lionImg, lion.x, lion.y, lion.width, lion.height);
         });
     }
 
-    // Handle touch input for mobile
-    function handleTouchStart(evt) {
-        const touch = evt.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-    }
-
-    function handleTouchMove(evt) {
-        if (!touchStartX || !touchStartY) return;
-
-        const touch = evt.touches[0];
-        const deltaX = touch.clientX - touchStartX;
-        const deltaY = touch.clientY - touchStartY;
-
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            // Horizontal swipe
-            if (deltaX > 0 && rabbit.x < canvas.width - rabbit.width) {
-                rabbit.x += rabbit.speed;
-            } else if (deltaX < 0 && rabbit.x > 0) {
-                rabbit.x -= rabbit.speed;
-            }
-        } else {
-            // Vertical swipe
-            if (deltaY > 0 && rabbit.y < canvas.height - rabbit.height) {
-                rabbit.y += rabbit.speed;
-            } else if (deltaY < 0 && rabbit.y > 0) {
-                rabbit.y -= rabbit.speed;
-            }
-        }
-
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-    }
-
-    function handleTouchEnd() {
-        touchStartX = 0;
-        touchStartY = 0;
-    }
-
-    // End the game when a collision occurs
     function endGame() {
         gameRunning = false;
         if (score > highScore) highScore = score;
         updateScore();
-
-        // Prompt the player to start a new game
         setTimeout(() => {
             if (confirm("A lion caught the rabbit! Would you like to start a new game?")) {
                 resetGame();
@@ -196,7 +137,6 @@
         }, 100);
     }
 
-    // Reset game
     function resetGame() {
         score = 0;
         gameSpeed = 1;
@@ -207,53 +147,39 @@
         updateScore();
     }
 
-    // Animation frame
+    function startGame() {
+        gameRunning = true;
+        backgroundMusic.play();
+        document.getElementById("startButton").style.display = "none";
+    }
+
     function gameLoop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas for new frame
-
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (gameRunning) {
-            // Increase game speed and multiplier over time
-            if (Date.now() - lastSpeedIncrease > gameSpeedIncreaseInterval) {
-                gameSpeed += 0.1;
-                scoreMultiplier += 0.5;
-                lastSpeedIncrease = Date.now();
-            }
-
-            // Move and draw the rabbit and lions
             moveRabbit();
             moveLions();
             drawRabbit();
             drawLions();
-
-            // Check for collisions with each lion
             lions.forEach(lion => {
                 if (checkCollision(rabbit, lion)) {
                     endGame();
                 }
             });
         }
-
         requestAnimationFrame(gameLoop);
     }
 
-    // Keydown and keyup listeners for keyboard controls
-    window.addEventListener("keydown", (e) => {
+    window.addEventListener("keydown", e => {
         keys[e.key] = true;
-        if (e.key === "Shift") rabbit.isSprinting = true; // Enable sprint when Shift is pressed
+        if (e.key === "Shift") rabbit.isSprinting = true;
     });
 
-    window.addEventListener("keyup", (e) => {
+    window.addEventListener("keyup", e => {
         keys[e.key] = false;
-        if (e.key === "Shift") rabbit.isSprinting = false; // Disable sprint when Shift is released
+        if (e.key === "Shift") rabbit.isSprinting = false;
     });
-
-    // Touch event listeners for mobile controls
-    canvas.addEventListener("touchstart", handleTouchStart);
-    canvas.addEventListener("touchmove", handleTouchMove);
-    canvas.addEventListener("touchend", handleTouchEnd);
 
     gameLoop();
 </script>
-
 </body>
 </html>
