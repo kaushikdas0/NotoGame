@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crossy Road - Rabbit vs Lions (With Scoring)</title>
+    <title>Crossy Road - Rabbit vs Lions (Game Stop on Collision)</title>
     <style>
         body {
             margin: 0;
@@ -76,6 +76,7 @@
     let scoreMultiplier = 1;
     let gameSpeedIncreaseInterval = 5000;  // Increase game speed every 5 seconds
     let lastSpeedIncrease = Date.now();
+    let gameRunning = true;
 
     // Load sound effect
     const scoreSound = new Audio('cyber_monster_world_sound.mp3'); // Replace with the actual path
@@ -94,6 +95,7 @@
 
     // Rabbit movement
     function moveRabbit() {
+        if (!gameRunning) return;
         if (keys["ArrowUp"] && rabbit.y > 0) rabbit.y -= rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
         if (keys["ArrowDown"] && rabbit.y < canvas.height - rabbit.height) rabbit.y += rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
         if (keys["ArrowLeft"] && rabbit.x > 0) rabbit.x -= rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
@@ -102,6 +104,7 @@
 
     // Lions movement
     function moveLions() {
+        if (!gameRunning) return;
         lions.forEach(lion => {
             lion.y += lion.speed * gameSpeed;
             if (lion.y > canvas.height) {
@@ -177,35 +180,56 @@
         touchStartY = 0;
     }
 
+    // End the game when a collision occurs
+    function endGame() {
+        gameRunning = false;
+        if (score > highScore) highScore = score;
+        updateScore();
+
+        // Prompt the player to start a new game
+        setTimeout(() => {
+            if (confirm("A lion caught the rabbit! Would you like to start a new game?")) {
+                resetGame();
+            }
+        }, 100);
+    }
+
+    // Reset game
+    function resetGame() {
+        score = 0;
+        gameSpeed = 1;
+        scoreMultiplier = 1;
+        rabbit.x = 50;
+        rabbit.y = canvas.height - 100;
+        gameRunning = true;
+        updateScore();
+    }
+
     // Animation frame
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas for new frame
 
-        // Increase game speed and multiplier over time
-        if (Date.now() - lastSpeedIncrease > gameSpeedIncreaseInterval) {
-            gameSpeed += 0.1;
-            scoreMultiplier += 0.5;
-            lastSpeedIncrease = Date.now();
-        }
-
-        // Move and draw the rabbit and lions
-        moveRabbit();
-        moveLions();
-        drawRabbit();
-        drawLions();
-
-        // Check for collisions with each lion
-        lions.forEach(lion => {
-            if (checkCollision(rabbit, lion)) {
-                alert("A lion caught the rabbit! Game over.");
-                return;
-                if (score > highScore) highScore = score;
-                score = 0;
-                gameSpeed = 1;
-                scoreMultiplier = 1;
-                updateScore();
+        if (gameRunning) {
+            // Increase game speed and multiplier over time
+            if (Date.now() - lastSpeedIncrease > gameSpeedIncreaseInterval) {
+                gameSpeed += 0.1;
+                scoreMultiplier += 0.5;
+                lastSpeedIncrease = Date.now();
             }
-        });
+
+            // Move and draw the rabbit and lions
+            moveRabbit();
+            moveLions();
+            drawRabbit();
+            drawLions();
+
+            // Check for collisions with each lion
+            lions.forEach(lion => {
+                if (checkCollision(rabbit, lion)) {
+                    endGame();
+                }
+            });
+        }
 
         requestAnimationFrame(gameLoop);
     }
