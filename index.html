@@ -73,8 +73,8 @@
         { x: 500, y: 0, width: 50, height: 50, speed: 2 }
     ];
 
-    let keys = {}, score = 0, highScore = 0, gameSpeed = 1, scoreMultiplier = 1, gameRunning = false;
-    let touchStartX = 0, touchStartY = 0;
+    let score = 0, highScore = 0, gameSpeed = 1, scoreMultiplier = 1, gameRunning = false;
+    let touchX = rabbit.x, touchY = rabbit.y;
 
     const backgroundMusic = document.getElementById("backgroundMusic");
 
@@ -90,10 +90,12 @@
 
     function moveRabbit() {
         if (!gameRunning) return;
-        if (keys["ArrowUp"] && rabbit.y > 0) rabbit.y -= rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
-        if (keys["ArrowDown"] && rabbit.y < canvas.height - rabbit.height) rabbit.y += rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
-        if (keys["ArrowLeft"] && rabbit.x > 0) rabbit.x -= rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
-        if (keys["ArrowRight"] && rabbit.x < canvas.width - rabbit.width) rabbit.x += rabbit.isSprinting ? rabbit.sprintSpeed : rabbit.speed;
+
+        // Smooth movement towards the touch position
+        if (touchX > rabbit.x) rabbit.x += rabbit.speed;
+        if (touchX < rabbit.x) rabbit.x -= rabbit.speed;
+        if (touchY > rabbit.y) rabbit.y += rabbit.speed;
+        if (touchY < rabbit.y) rabbit.y -= rabbit.speed;
     }
 
     function moveLions() {
@@ -154,47 +156,15 @@
         document.getElementById("startButton").style.display = "none";
     }
 
-    function handleTouchStart(evt) {
-        const touch = evt.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-    }
-
     function handleTouchMove(evt) {
-        if (!touchStartX || !touchStartY) return;
-
         const touch = evt.touches[0];
-        const deltaX = touch.clientX - touchStartX;
-        const deltaY = touch.clientY - touchStartY;
-
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            // Horizontal swipe
-            if (deltaX > 0 && rabbit.x < canvas.width - rabbit.width) {
-                keys["ArrowRight"] = true;
-                keys["ArrowLeft"] = false;
-            } else if (deltaX < 0 && rabbit.x > 0) {
-                keys["ArrowLeft"] = true;
-                keys["ArrowRight"] = false;
-            }
-        } else {
-            // Vertical swipe
-            if (deltaY > 0 && rabbit.y < canvas.height - rabbit.height) {
-                keys["ArrowDown"] = true;
-                keys["ArrowUp"] = false;
-            } else if (deltaY < 0 && rabbit.y > 0) {
-                keys["ArrowUp"] = true;
-                keys["ArrowDown"] = false;
-            }
-        }
-
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
+        touchX = touch.clientX - rabbit.width / 2;  // Center the rabbit on touch
+        touchY = touch.clientY - rabbit.height / 2; // Center the rabbit on touch
     }
 
     function handleTouchEnd() {
-        touchStartX = 0;
-        touchStartY = 0;
-        keys = {};
+        touchX = rabbit.x; // Stop movement when touch ends
+        touchY = rabbit.y;
     }
 
     function gameLoop() {
@@ -213,17 +183,6 @@
         requestAnimationFrame(gameLoop);
     }
 
-    window.addEventListener("keydown", e => {
-        keys[e.key] = true;
-        if (e.key === "Shift") rabbit.isSprinting = true;
-    });
-
-    window.addEventListener("keyup", e => {
-        keys[e.key] = false;
-        if (e.key === "Shift") rabbit.isSprinting = false;
-    });
-
-    canvas.addEventListener("touchstart", handleTouchStart);
     canvas.addEventListener("touchmove", handleTouchMove);
     canvas.addEventListener("touchend", handleTouchEnd);
 
