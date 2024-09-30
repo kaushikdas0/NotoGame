@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crossy Road - Rabbit vs Lions</title>
     <style>
         body {
@@ -114,8 +114,8 @@
                     addLion();  // Add more lions as the score increases
                 }
 
-                if (score % 10 === 0) {
-                    increaseDifficulty();  // Keep increasing the speed
+                if (score % getRandomMultiplier() === 0) {  // Randomly increase game speed when score is a multiple of 5, 6, or 7
+                    increaseDifficulty();  
                 }
             }
         });
@@ -133,8 +133,14 @@
     }
 
     function increaseDifficulty() {
-        gameSpeed += 0.1;  // No limit on the game speed, it keeps increasing
+        gameSpeed += 0.5;  // Increase the game speed by 0.5
         updateScore();  // Update display to show the increased game speed
+    }
+
+    // Function to randomly choose between 5, 6, or 7 as the score multiplier
+    function getRandomMultiplier() {
+        const multipliers = [5, 6, 7];
+        return multipliers[Math.floor(Math.random() * multipliers.length)];
     }
 
     function checkCollision(rabbit, lion) {
