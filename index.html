@@ -66,6 +66,32 @@
 
     let rabbit = { x: 50, y: canvas.height - 100, width: 50, height: 50, speed: 5, sprintSpeed: 12, isSprinting: false };
 
+    // Illustration background settings
+    let backgroundY = 0;
+    let backgroundSpeed = 1;  // Speed of the background scrolling
+
+    function drawBackground() {
+        ctx.fillStyle = "#87CEEB"; // Sky blue
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw simple buildings
+        ctx.fillStyle = "#2F4F4F";  // Dark gray buildings
+        for (let i = 0; i < 5; i++) {
+            let buildingX = i * 200;  // Space between buildings horizontally
+            let buildingY = (backgroundY + i * 300) % canvas.height;  // Scroll effect vertically
+            let buildingHeight = 200 + (i % 2) * 100;  // Different heights for buildings
+
+            ctx.fillRect(buildingX, buildingY, 100, buildingHeight);  // Draw first row of buildings
+            ctx.fillRect(buildingX + 300, buildingY - 400, 100, buildingHeight + 150); // Second row
+        }
+
+        // Scroll the background upwards
+        backgroundY += backgroundSpeed;
+        if (backgroundY > canvas.height) {
+            backgroundY = 0;  // Loop the background back to the top
+        }
+    }
+
     let lions = [
         { x: 100, y: 0, width: 50, height: 50, speed: 3 },
         { x: 300, y: 0, width: 50, height: 50, speed: 4 },
@@ -133,7 +159,8 @@
     }
 
     function increaseDifficulty() {
-        gameSpeed += 0.5;  // Increase the game speed by 0.5
+        gameSpeed += 0.2;  // Increase the game speed by 0.2
+        backgroundSpeed += 0.1;  // Optionally, also increase background speed for dynamic effect
         updateScore();  // Update display to show the increased game speed
     }
 
@@ -174,6 +201,7 @@
     function resetGame() {
         score = 0;
         gameSpeed = 1;  // Reset gameSpeed to its initial value
+        backgroundSpeed = 1;  // Reset background speed
         scoreMultiplier = 1;
         rabbit.x = 50;
         rabbit.y = canvas.height - 100;
@@ -205,6 +233,7 @@
 
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBackground();  // Draw scrolling background
 
         if (gameRunning) {
             moveRabbit();
