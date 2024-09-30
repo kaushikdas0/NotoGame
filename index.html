@@ -67,33 +67,6 @@
 
     let rabbit = { x: 50, y: canvas.height - 100, width: 50, height: 50, speed: 5, sprintSpeed: 12, isSprinting: false };
 
-    // Illustration background settings
-    let backgroundY = 0;  // Initial background Y position
-    let backgroundSpeed = 1;  // Speed of the background scrolling
-
-    // Illustration-style background: simple cityscape with buildings
-    function drawBackground() {
-        ctx.fillStyle = "#87CEEB"; // Sky blue
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Draw buildings (simple rectangles) that scroll
-        ctx.fillStyle = "#2F4F4F";  // Dark gray buildings
-        for (let i = 0; i < 5; i++) {
-            let buildingX = i * 200;  // Space between buildings
-            let buildingY = (backgroundY + i * 300) % canvas.height;  // Scroll effect
-            let buildingHeight = 200 + (i % 2) * 100;  // Different heights for buildings
-
-            ctx.fillRect(buildingX, buildingY, 100, buildingHeight);  // Draw building
-            ctx.fillRect(buildingX + 300, buildingY - 400, 100, buildingHeight + 150); // Second row of buildings
-        }
-
-        // Scroll the background
-        backgroundY += backgroundSpeed;
-        if (backgroundY > canvas.height) {
-            backgroundY = 0;  // Loop back to top
-        }
-    }
-
     let lions = [
         { x: 100, y: 0, width: 50, height: 50, speed: 3 },
         { x: 300, y: 0, width: 50, height: 50, speed: 4 },
@@ -128,20 +101,21 @@
     function moveLions() {
         if (!gameRunning) return;
         lions.forEach(lion => {
-            lion.y += lion.speed * gameSpeed;
+            lion.y += lion.speed * gameSpeed;  // Lions move faster as gameSpeed increases
+
             if (lion.y > canvas.height) {
-                lion.y = 0;
-                lion.x = Math.random() * canvas.width;
-                score += 1 * scoreMultiplier;
+                lion.y = 0;  // Reset lion to the top of the canvas
+                lion.x = Math.random() * canvas.width;  // Random horizontal position
+                score += 1;  // Increase the score
                 if (score > highScore) highScore = score;
                 updateScore();
 
                 if (lions.length < maxLions && score % 10 === 0) {
-                    addLion();
+                    addLion();  // Add more lions as the score increases
                 }
 
                 if (score % 10 === 0) {
-                    speedUpBackground();
+                    increaseDifficulty();  // Keep increasing the speed
                 }
             }
         });
@@ -158,10 +132,8 @@
         lions.push(newLion);
     }
 
-    function speedUpBackground() {
-        if (backgroundSpeed < 5) {
-            backgroundSpeed += 0.5;
-        }
+    function increaseDifficulty() {
+        gameSpeed += 0.1;  // No limit on the game speed, it keeps increasing
     }
 
     function checkCollision(rabbit, lion) {
@@ -194,7 +166,7 @@
 
     function resetGame() {
         score = 0;
-        gameSpeed = 1;
+        gameSpeed = 1;  // Reset gameSpeed to its initial value
         scoreMultiplier = 1;
         rabbit.x = 50;
         rabbit.y = canvas.height - 100;
@@ -202,7 +174,7 @@
             { x: 100, y: 0, width: 50, height: 50, speed: 3 },
             { x: 300, y: 0, width: 50, height: 50, speed: 4 },
             { x: 500, y: 0, width: 50, height: 50, speed: 2 }
-        ];
+        ];  // Reset to 3 lions
         gameRunning = true;
         updateScore();
     }
@@ -226,8 +198,6 @@
 
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        drawBackground();  // Draw scrolling background
 
         if (gameRunning) {
             moveRabbit();
