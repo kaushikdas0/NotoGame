@@ -158,8 +158,9 @@
 
     function handleTouchMove(evt) {
         const touch = evt.touches[0];
-        touchX = touch.clientX - rabbit.width / 2;  // Center the rabbit on touch
-        touchY = touch.clientY - rabbit.height / 2; // Center the rabbit on touch
+        // Apply offset to position the rabbit slightly above and to the left of the touch point
+        touchX = touch.clientX - rabbit.width; 
+        touchY = touch.clientY - rabbit.height * 2; // Offset more above the touch point
     }
 
     function handleTouchEnd() {
