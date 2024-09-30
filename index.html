@@ -198,6 +198,7 @@
         lions.forEach(lion => {
             if (checkCollision(rabbit, lion)) {
                 alert("A lion caught the rabbit! Game over.");
+                return;
                 if (score > highScore) highScore = score;
                 score = 0;
                 gameSpeed = 1;
