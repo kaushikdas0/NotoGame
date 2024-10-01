@@ -238,8 +238,35 @@
             if (confirm("A lion caught the rabbit! Would you like to start a new game?")) {
                 resetGame();
                 backgroundMusic.play();
+            } else {
+                returnToStartScreen();
             }
         }, 100);
+    }
+
+    function returnToStartScreen() {
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw the background
+        drawBackground();
+        
+        // Show the start button
+        document.getElementById("startButton").style.display = "block";
+        
+        // Reset game state
+        score = 0;
+        gameSpeed = 1;
+        backgroundSpeed = 1;
+        scoreMultiplier = 1;
+        updateScore();
+        
+        // Reset rabbit position
+        rabbit.x = 50;
+        rabbit.y = canvas.height - 100;
+        
+        // Clear lions
+        lions = [];
     }
 
     function resetGame() {
