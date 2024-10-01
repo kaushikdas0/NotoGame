@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Crossy Road - Rabbit vs Lions</title>
     <style>
-        /* Ensure the game is centered and limits the size on larger screens */
         body {
             margin: 0;
             overflow: hidden;
@@ -13,16 +12,15 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #000; /* Black background to fill unused space on larger screens */
+            background-color: #000;
         }
 
-        /* Limit canvas to mobile dimensions on larger screens */
         canvas {
             display: block;
-            width: 100%;              /* Ensures it fits the mobile screen width */
-            max-width: 360px;          /* Set maximum width for larger screens */
-            max-height: 640px;         /* Set maximum height for larger screens */
-            background-color: #87CEEB; /* Background sky blue */
+            width: 100%;
+            max-width: 360px;
+            max-height: 640px;
+            background-color: #87CEEB;
         }
 
         #scoreboard {
@@ -36,7 +34,7 @@
             background: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 5px;
-            width: 360px; /* Set the scoreboard to match the mobile canvas width */
+            width: 360px;
             text-align: center;
         }
 
@@ -76,9 +74,8 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    /* Set canvas dimensions to typical mobile screen size */
-    canvas.width = 360;  // Fixed mobile width
-    canvas.height = 640; // Fixed mobile height
+    canvas.width = 360;
+    canvas.height = 640;
 
     const rabbitImg = new Image();
     rabbitImg.src = "Anime-style_baby_rabbit_character,_standing_cutely.png";
@@ -88,29 +85,26 @@
 
     let rabbit = { x: 50, y: canvas.height - 100, width: 50, height: 50, speed: 5, sprintSpeed: 12, isSprinting: false };
 
-    // Illustration background settings
     let backgroundY = 0;
-    let backgroundSpeed = 1;  // Speed of the background scrolling
+    let backgroundSpeed = 1;
 
     function drawBackground() {
-        ctx.fillStyle = "#87CEEB"; // Sky blue
+        ctx.fillStyle = "#87CEEB";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw simple buildings
-        ctx.fillStyle = "#2F4F4F";  // Dark gray buildings
+        ctx.fillStyle = "#2F4F4F";
         for (let i = 0; i < 5; i++) {
-            let buildingX = i * 200;  // Space between buildings horizontally
-            let buildingY = (backgroundY + i * 300) % canvas.height;  // Scroll effect vertically
-            let buildingHeight = 200 + (i % 2) * 100;  // Different heights for buildings
+            let buildingX = i * 200;
+            let buildingY = (backgroundY + i * 300) % canvas.height;
+            let buildingHeight = 200 + (i % 2) * 100;
 
-            ctx.fillRect(buildingX, buildingY, 100, buildingHeight);  // Draw first row of buildings
-            ctx.fillRect(buildingX + 300, buildingY - 400, 100, buildingHeight + 150); // Second row
+            ctx.fillRect(buildingX, buildingY, 100, buildingHeight);
+            ctx.fillRect(buildingX + 300, buildingY - 400, 100, buildingHeight + 150);
         }
 
-        // Scroll the background upwards
         backgroundY += backgroundSpeed;
         if (backgroundY > canvas.height) {
-            backgroundY = 0;  // Loop the background back to the top
+            backgroundY = 0;
         }
     }
 
@@ -121,15 +115,16 @@
     ];
 
     let score = 0, highScore = 0, gameSpeed = 1, scoreMultiplier = 1, gameRunning = false;
-    let maxLions = 7;  // Maximum number of lions
+    let maxLions = 7;
     let touchX = rabbit.x, touchY = rabbit.y;
 
     const backgroundMusic = document.getElementById("backgroundMusic");
+    let initialMusicTempo = 1; // Base playback rate
 
     function updateScore() {
         document.getElementById('score').textContent = score;
         document.getElementById('highScore').textContent = highScore;
-        document.getElementById('gameSpeedDisplay').textContent = gameSpeed.toFixed(1);  // Display current game speed
+        document.getElementById('gameSpeedDisplay').textContent = gameSpeed.toFixed(1);
     }
 
     function resetHighScore() {
@@ -140,9 +135,8 @@
     function moveRabbit() {
         if (!gameRunning) return;
 
-        // Move rabbit towards the touch position with an offset to avoid thumb coverage
-        const offsetX = 25; // Offset to the left of the touch
-        const offsetY = 40; // Offset above the touch
+        const offsetX = 25;
+        const offsetY = 40;
 
         if (touchX > rabbit.x + offsetX) rabbit.x += rabbit.speed;
         if (touchX < rabbit.x + offsetX) rabbit.x -= rabbit.speed;
@@ -153,20 +147,20 @@
     function moveLions() {
         if (!gameRunning) return;
         lions.forEach(lion => {
-            lion.y += lion.speed * gameSpeed;  // Lions move faster as gameSpeed increases
+            lion.y += lion.speed * gameSpeed;
 
             if (lion.y > canvas.height) {
-                lion.y = 0;  // Reset lion to the top of the canvas
-                lion.x = Math.random() * canvas.width;  // Random horizontal position
-                score += 1;  // Increase the score
+                lion.y = 0;
+                lion.x = Math.random() * canvas.width;
+                score += 1;
                 if (score > highScore) highScore = score;
                 updateScore();
 
                 if (lions.length < maxLions && score % 10 === 0) {
-                    addLion();  // Add more lions as the score increases
+                    addLion();
                 }
 
-                if (score % getRandomMultiplier() === 0) {  // Randomly increase game speed when score is a multiple of 5, 6, or 7
+                if (score % getRandomMultiplier() === 0) {
                     increaseDifficulty();  
                 }
             }
@@ -179,18 +173,28 @@
             y: 0,
             width: 50,
             height: 50,
-            speed: Math.random() * 3 + 2  // Random speed for new lion
+            speed: Math.random() * 3 + 2
         };
         lions.push(newLion);
     }
 
     function increaseDifficulty() {
-        gameSpeed += 0.2;  // Increase the game speed by 0.2
-        backgroundSpeed += 0.1;  // Optionally, also increase background speed for dynamic effect
-        updateScore();  // Update display to show the increased game speed
+        gameSpeed += 0.2;
+        backgroundSpeed += 0.1;
+        updateScore();
+        increaseMusicTempo();
     }
 
-    // Function to randomly choose between 5, 6, or 7 as the score multiplier
+    function increaseMusicTempo() {
+        // Increase the playback rate by 5% each time, capping at double the original speed
+        let newTempo = Math.min(backgroundMusic.playbackRate * 1.05, initialMusicTempo * 2);
+        backgroundMusic.playbackRate = newTempo;
+    }
+
+    function resetMusicTempo() {
+        backgroundMusic.playbackRate = initialMusicTempo;
+    }
+
     function getRandomMultiplier() {
         const multipliers = [5, 6, 7];
         return multipliers[Math.floor(Math.random() * multipliers.length)];
@@ -217,17 +221,21 @@
         gameRunning = false;
         if (score > highScore) highScore = score;
         updateScore();
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
+        resetMusicTempo(); // Reset the music tempo
         setTimeout(() => {
             if (confirm("A lion caught the rabbit! Would you like to start a new game?")) {
                 resetGame();
+                backgroundMusic.play();
             }
         }, 100);
     }
 
     function resetGame() {
         score = 0;
-        gameSpeed = 1;  // Reset gameSpeed to its initial value
-        backgroundSpeed = 1;  // Reset background speed
+        gameSpeed = 1;
+        backgroundSpeed = 1;
         scoreMultiplier = 1;
         rabbit.x = 50;
         rabbit.y = canvas.height - 100;
@@ -235,9 +243,10 @@
             { x: 100, y: 0, width: 50, height: 50, speed: 3 },
             { x: 300, y: 0, width: 50, height: 50, speed: 4 },
             { x: 500, y: 0, width: 50, height: 50, speed: 2 }
-        ];  // Reset to 3 lions
+        ];
         gameRunning = true;
         updateScore();
+        resetMusicTempo(); // Reset the music tempo when starting a new game
     }
 
     function startGame() {
@@ -249,8 +258,8 @@
     function handleTouchMove(evt) {
         const rect = canvas.getBoundingClientRect();
         const touch = evt.touches[0];
-        touchX = (touch.clientX - rect.left) * (canvas.width / rect.width); // Scale touchX to canvas size
-        touchY = (touch.clientY - rect.top) * (canvas.height / rect.height); // Scale touchY to canvas size
+        touchX = (touch.clientX - rect.left) * (canvas.width / rect.width);
+        touchY = (touch.clientY - rect.top) * (canvas.height / rect.height);
     }
 
     function handleTouchEnd() {
@@ -260,7 +269,7 @@
 
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawBackground();  // Draw scrolling background
+        drawBackground();
 
         if (gameRunning) {
             moveRabbit();
