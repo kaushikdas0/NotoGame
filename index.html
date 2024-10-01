@@ -140,10 +140,14 @@
     function moveRabbit() {
         if (!gameRunning) return;
 
-        if (touchX > rabbit.x) rabbit.x += rabbit.speed;
-        if (touchX < rabbit.x) rabbit.x -= rabbit.speed;
-        if (touchY > rabbit.y) rabbit.y += rabbit.speed;
-        if (touchY < rabbit.y) rabbit.y -= rabbit.speed;
+        // Move rabbit towards the touch position with an offset to avoid thumb coverage
+        const offsetX = 25; // Offset to the left of the touch
+        const offsetY = 40; // Offset above the touch
+
+        if (touchX > rabbit.x + offsetX) rabbit.x += rabbit.speed;
+        if (touchX < rabbit.x + offsetX) rabbit.x -= rabbit.speed;
+        if (touchY > rabbit.y + offsetY) rabbit.y += rabbit.speed;
+        if (touchY < rabbit.y + offsetY) rabbit.y -= rabbit.speed;
     }
 
     function moveLions() {
@@ -243,9 +247,10 @@
     }
 
     function handleTouchMove(evt) {
+        const rect = canvas.getBoundingClientRect();
         const touch = evt.touches[0];
-        touchX = touch.clientX - rabbit.width; 
-        touchY = touch.clientY - rabbit.height * 2; 
+        touchX = (touch.clientX - rect.left) * (canvas.width / rect.width); // Scale touchX to canvas size
+        touchY = (touch.clientY - rect.top) * (canvas.height / rect.height); // Scale touchY to canvas size
     }
 
     function handleTouchEnd() {
