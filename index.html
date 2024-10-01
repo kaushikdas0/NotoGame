@@ -1,27 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Crossy Road - Rabbit vs Lions</title>
     <style>
+        /* Ensure the game is centered and limits the size on larger screens */
         body {
             margin: 0;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000; /* Black background to fill unused space on larger screens */
         }
+
+        /* Limit canvas to mobile dimensions on larger screens */
         canvas {
             display: block;
+            width: 100%;              /* Ensures it fits the mobile screen width */
+            max-width: 360px;          /* Set maximum width for larger screens */
+            max-height: 640px;         /* Set maximum height for larger screens */
+            background-color: #87CEEB; /* Background sky blue */
         }
+
         #scoreboard {
             position: absolute;
             top: 10px;
-            left: 10px;
+            left: 50%;
+            transform: translateX(-50%);
             font-family: Arial, sans-serif;
             font-size: 20px;
             color: white;
             background: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 5px;
+            width: 360px; /* Set the scoreboard to match the mobile canvas width */
+            text-align: center;
         }
+
         #startButton {
             position: absolute;
             top: 50%;
@@ -34,7 +52,10 @@
             border: none;
             border-radius: 10px;
             cursor: pointer;
+            width: 200px;
+            text-align: center;
         }
+
         #startButton:hover {
             background-color: #45a049;
         }
@@ -55,8 +76,9 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    /* Set canvas dimensions to typical mobile screen size */
+    canvas.width = 360;  // Fixed mobile width
+    canvas.height = 640; // Fixed mobile height
 
     const rabbitImg = new Image();
     rabbitImg.src = "Anime-style_baby_rabbit_character,_standing_cutely.png";
