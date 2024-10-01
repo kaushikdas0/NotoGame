@@ -138,10 +138,20 @@
         const offsetX = 25;
         const offsetY = 40;
 
-        if (touchX > rabbit.x + offsetX) rabbit.x += rabbit.speed;
-        if (touchX < rabbit.x + offsetX) rabbit.x -= rabbit.speed;
-        if (touchY > rabbit.y + offsetY) rabbit.y += rabbit.speed;
-        if (touchY < rabbit.y + offsetY) rabbit.y -= rabbit.speed;
+        let newX = rabbit.x;
+        let newY = rabbit.y;
+
+        if (touchX > rabbit.x + offsetX) newX += rabbit.speed;
+        if (touchX < rabbit.x + offsetX) newX -= rabbit.speed;
+        if (touchY > rabbit.y + offsetY) newY += rabbit.speed;
+        if (touchY < rabbit.y + offsetY) newY -= rabbit.speed;
+
+        // Boundary checks
+        newX = Math.max(0, Math.min(newX, canvas.width - rabbit.width));
+        newY = Math.max(0, Math.min(newY, canvas.height - rabbit.height));
+
+        rabbit.x = newX;
+        rabbit.y = newY;
     }
 
     function moveLions() {
